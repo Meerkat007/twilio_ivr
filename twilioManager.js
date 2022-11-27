@@ -8,6 +8,7 @@ const axios = require('axios')
 const API_HOST = 'https://api.twilio.com'
 
 const PLATE_NUM_INDICATOR = 'Thank you for providing plate number'
+const FEEDBACK_INDICATOR = 'do you have more feedback'
 const BUMPER_ID_INDICATOR = ''
 
 /*
@@ -74,9 +75,7 @@ async function getDataFromTwilio () {
         console.error(e)
     }
   }
-  console.log('finalData', finalData)
-
-  console.log('!!!finish getting events')
+  return finalData;
 }
 
 getDataFromTwilio()
@@ -187,11 +186,10 @@ function getProcessedEventsForTransferToDb (call, events) {
         // unique identifier for each document in firestore
         const doc = callData.callSid + '_' + index
         return {
-            [doc]: {
-                ...callData,
-                ...processedEvent,
-                plateNumber,
-            }
+          docName: doc,
+          ...callData,
+          ...processedEvent,
+          plateNumber,
         }
     })
   return output;
@@ -230,4 +228,8 @@ function parseDataForTransferToDb () {
 
 function writeDataToDb () {
 
+}
+
+module.exports = {
+    getDataFromTwilio,
 }
