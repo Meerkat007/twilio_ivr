@@ -1,0 +1,25 @@
+{
+  "name": "twilio_ivr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "get_log.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/firestore": "^6.4.1",
+    "axios": "^0.26.1",
+    "firebase": "^9.13.0",
+    "firebase-admin": "^11.3.0",
+    "twilio": "^3.83.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.28.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1"
+  }
+}
