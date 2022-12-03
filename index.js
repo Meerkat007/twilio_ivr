@@ -30,6 +30,7 @@ async function run () {
         );
         console.log('!!!twilio data')
         await batchSendToFireStore(database, twilioData)
+        await setLastReadEpochMillis(database, readEndEpochMillis);
     } catch (e) {
         console.error('failed with', e)
     }
