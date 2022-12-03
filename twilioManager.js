@@ -81,7 +81,7 @@ async function getAllCalls (twilioClient, starTime, endTime) {
 }
 
 async function getEventsFromSingleCall (call) {
-    let eventUri = call?.subresourceUris?.events
+    let eventUri = call.subresourceUris.events
     if (eventUri) {
         eventUri = API_HOST + eventUri
         try {
@@ -190,7 +190,7 @@ function getProcessedEventsForTransferToDb (call, events) {
 }
 
 function getParsedEvent (event) {
-    const requestParams = event?.request?.parameters
+    const requestParams = event.request.parameters
     if (!requestParams) {
         return
     }
@@ -206,7 +206,7 @@ function getParsedEvent (event) {
     const parsedEvent = {
         speechResult: speech_result
     }
-    const responseBody = event?.response?.response_body
+    const responseBody = event.response.response_body
     if (responseBody) {
         parsedEvent.machineResponse = responseBody
         if (responseBody.indexOf(PLATE_NUM_INDICATOR) !== -1) {

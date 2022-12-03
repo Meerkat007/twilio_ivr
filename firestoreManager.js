@@ -67,7 +67,7 @@ async function getLastReadEpochMillis(db) {
     if (!doc.exists) {
         return -1;
     } else {
-        return doc.data()?.value || -1;
+        return doc.data().value || -1;
     }
 }
 
