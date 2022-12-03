@@ -8,9 +8,6 @@ const { getDataFromTwilio } = require('./twilioManager')
 const timeUtils = require('./timeUtils');
 
 async function run () {
-    // run every 30 sec
-    // get last update epoch
-    // query data between now and last update epoch
     let readStartEpochMillis = -1;
     const lastReadEpoch = await getLastReadEpochMillis(database);
     if (lastReadEpoch === -1) {
@@ -20,9 +17,12 @@ async function run () {
     }
     const readStartDateTime = timeUtils
         .getFormattedEpoch(readStartEpochMillis);
+    console.log('readStartDateTime', readStartEpochMillis, readStartDateTime)
     const readEndEpochMillis = timeUtils.getFormattedNow();
     const readEndDateTime = timeUtils
         .getFormattedEpoch(readEndEpochMillis);
+    console.log('readEndDateTime', readEndEpochMillis, readEndDateTime)
+    return;
     try {
         const twilioData = await getDataFromTwilio(
             readStartDateTime,
@@ -43,3 +43,4 @@ setInterval(() => {
         console.log('failed to run', e);
     }
 }, 30 * 1000)
+
