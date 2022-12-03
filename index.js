@@ -9,9 +9,8 @@ const timeUtils = require('./timeUtils');
 
 async function run () {
     console.log('run')
-    let readStartEpochMillis = -1;
-    const lastReadEpoch = await getLastReadEpochMillis(database);
-    if (lastReadEpoch === -1) {
+    let readStartEpochMillis = await getLastReadEpochMillis(database);
+    if (readStartEpochMillis === -1) {
         readStartEpochMillis = timeUtils
             .getEpochMillisFromDateTime('2022-11-01 00:00:00');
         await setLastReadEpochMillis(database, readStartEpochMillis);
@@ -23,7 +22,7 @@ async function run () {
     const readEndDateTime = timeUtils
         .getFormattedEpoch(readEndEpochMillis);
     console.log('readEndDateTime', readEndEpochMillis, readEndDateTime)
-    return;
+
     try {
         const twilioData = await getDataFromTwilio(
             readStartDateTime,

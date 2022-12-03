@@ -64,6 +64,7 @@ async function getLastReadEpochMillis(db) {
         .collection('watermark')
         .doc('lastWriteEpochMillis');
     const doc = await lastWriteEpochRef.get()
+    console.log('doc', doc.data().value)
     if (!doc.exists) {
         return -1;
     } else {
