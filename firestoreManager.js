@@ -41,7 +41,7 @@ function getTwilioEventsRef(db) {
     return db.collection('twilioEvents');
 }
 
-function getLastWriteEpoch(db) {
+async function getLastReadEpochMillis(db) {
     const lastWriteEpochRef = db
         .collection('watermark')
         .doc('lastWriteEpoch');
@@ -53,16 +53,17 @@ function getLastWriteEpoch(db) {
     }
 }
 
-function setLastWriteEpoch(db, value) {
+async function setLastReadEpochMillis(db, value) {
     const lastWriteEpochRef = db
         .collection('watermark')
         .doc('lastWriteEpoch');
-    lastWriteEpochRef.set({value})
+    await lastWriteEpochRef.set({value})
+    return value;
 }
 
 module.exports = {
     database,
     batchSendToFireStore,
-    getLastWriteEpoch,
-    setLastWriteEpoch
+    getLastReadEpochMillis,
+    setLastReadEpochMillis
 }

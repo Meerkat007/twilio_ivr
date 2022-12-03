@@ -11,20 +11,6 @@ const PLATE_NUM_INDICATOR = 'Thank you for providing plate number'
 const FEEDBACK_INDICATOR = 'do you have more feedback'
 const BUMPER_ID_INDICATOR = ''
 
-/*
-periodically pull data and save to db
-create an api endpoint that can retrieve the information
-create a web page for calling that api
-*/
-
-// const url = "https://api.twilio.com/2010-04-01/Accounts/ACfdc7ae0ddb1e08f83709a104362bc3f4/Calls/CA3252225398939099151f4fff3ab2833d/Events.json"
-
-// pull logs based on date or some flag periodically
-// iterate each item in the log
-// retrieve events for each item
-// retrieve question and user speech from events
-// store these in the database
-
 // db design
 /*
 
@@ -50,11 +36,13 @@ callsid + event index
 
 */
 
-async function getDataFromTwilio () {
+async function getDataFromTwilio (startDateTime, endDateTime) {
+    const LOG_HEADER = '[getDataFromTwilio] ';
+    console.log(LOG_HEADER + 'startDateTime ' + startDateTime + 'endDateTime ' + endDateTime);
     const calls = await getAllCalls(
         client,
-        '2022-11-12 00:00:00',
-        '2022-11-13 00:00:00'
+        startDateTime,
+        endDateTime
     )
 
     let finalData = []
@@ -77,8 +65,6 @@ async function getDataFromTwilio () {
     }
     return finalData
 }
-
-getDataFromTwilio()
 
 async function getAllCalls (twilioClient, starTime, endTime) {
     try {
