@@ -35,4 +35,10 @@ async function run () {
     }
 }
 
-run();
+setInterval(() => {
+    try {
+        run();
+    } catch (e) {
+        console.log('failed to run', e);
+    }
+}, 30 * 1000)
