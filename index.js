@@ -23,6 +23,7 @@ async function run () {
     const readEndDateTime = timeUtils
         .getFormattedEpoch(readEndEpochMillis);
     console.log('readEndDateTime', readEndEpochMillis, readEndDateTime)
+    return;
     try {
         const twilioData = await getDataFromTwilio(
             readStartDateTime,
