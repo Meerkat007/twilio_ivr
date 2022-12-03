@@ -7,6 +7,10 @@ module.exports = {
         return moment().format(TWILIO_DATE_TIME_FORMAT)
     },
 
+    getEpochMillisNow() {
+        return moment().valueOf();
+    },
+
     getFormattedEpoch(epoch) {
         return moment(epoch).format(TWILIO_DATE_TIME_FORMAT)
     },

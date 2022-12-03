@@ -62,7 +62,7 @@ function getTwilioEventsCollection(db) {
 async function getLastReadEpochMillis(db) {
     const lastWriteEpochRef = db
         .collection('watermark')
-        .doc('lastWriteEpoch');
+        .doc('lastWriteEpochMillis');
     const doc = await lastWriteEpochRef.get()
     if (!doc.exists) {
         return -1;
@@ -74,7 +74,7 @@ async function getLastReadEpochMillis(db) {
 async function setLastReadEpochMillis(db, value) {
     const lastWriteEpochRef = db
         .collection('watermark')
-        .doc('lastWriteEpoch');
+        .doc('lastWriteEpochMillis');
     await lastWriteEpochRef.set({value})
     return value;
 }
