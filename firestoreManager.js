@@ -41,6 +41,28 @@ function getTwilioEventsRef(db) {
     return db.collection('twilioEvents');
 }
 
+function getLastWriteEpoch(db) {
+    const lastWriteEpochRef = db
+        .collection('watermark')
+        .doc('lastWriteEpoch');
+    const doc = await lastWriteEpochRef.get()
+    if (!doc.exists) {
+        return -1;
+    } else {
+        return doc.data()?.value || -1;
+    }
+}
+
+function setLastWriteEpoch(db, value) {
+    const lastWriteEpochRef = db
+        .collection('watermark')
+        .doc('lastWriteEpoch');
+    lastWriteEpochRef.set({value})
+}
+
 module.exports = {
+    database,
     batchSendToFireStore,
+    getLastWriteEpoch,
+    setLastWriteEpoch
 }

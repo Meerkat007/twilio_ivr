@@ -51,175 +51,183 @@ callsid + event index
 */
 
 async function getDataFromTwilio () {
-  const calls = await getAllCalls(
-    client,
-    '2022-11-12 00:00:00',
-    '2022-11-13 00:00:00'
-  )
+    const calls = await getAllCalls(
+        client,
+        '2022-11-12 00:00:00',
+        '2022-11-13 00:00:00'
+    )
 
-  let finalData = []
-  for (const call of calls) {
-    try {
-        const eventsGot = await getEventsFromSingleCall(call)
-        if (Array.isArray(eventsGot)) {
-            const processedEvents = getProcessedEventsForTransferToDb(
-                call,
-                eventsGot
-            )
-            finalData = [
-                ...finalData,
-                ...processedEvents
-            ]
+    let finalData = []
+    for (const call of calls) {
+        try {
+            const eventsGot = await getEventsFromSingleCall(call)
+            if (Array.isArray(eventsGot)) {
+                const processedEvents = getProcessedEventsForTransferToDb(
+                    call,
+                    eventsGot
+                )
+                finalData = [
+                    ...finalData,
+                    ...processedEvents
+                ]
+            }
+        } catch (e) {
+            console.error(e)
         }
-    } catch (e) {
-        console.error(e)
     }
-  }
-  return finalData;
+    return finalData
 }
 
 getDataFromTwilio()
 
 async function getAllCalls (twilioClient, starTime, endTime) {
-  try {
-    const calls = await twilioClient
-      .calls
-      .list({
-        endTimeBefore: endTime,
-        endTimeAfter: starTime
-      })
-    return calls
-  } catch (e) {
-    console.error(e)
-  }
+    try {
+        const calls = await twilioClient
+            .calls
+            .list({
+                endTimeBefore: endTime,
+                endTimeAfter: starTime
+            })
+        return calls
+    } catch (e) {
+        console.error(e)
+    }
 }
 
 async function getEventsFromSingleCall (call) {
-  let eventUri = call?.subresourceUris?.events
-  if (eventUri) {
-    eventUri = API_HOST + eventUri
-    try {
-      return await getEvents(eventUri)
-    } catch (e) {
-      console.error(e)
+    let eventUri = call?.subresourceUris?.events
+    if (eventUri) {
+        eventUri = API_HOST + eventUri
+        try {
+            return await getEvents(eventUri)
+        } catch (e) {
+            console.error(e)
+        }
     }
-  }
 }
 
 async function getEvents (eventUri) {
-  if (!eventUri) {
-    return Promise.resolve(undefined)
-  }
+    if (!eventUri) {
+        return Promise.resolve(undefined)
+    }
 
-  try {
-    return await axios.get(eventUri, {
-      auth: {
-        username: accountSid,
-        password: authToken
-      }
-    }).then(response => {
-      return response.data.events
-    })
-  } catch (e) {
-    console.error(e)
-    return []
-  }
+    try {
+        return await axios.get(eventUri, {
+            auth: {
+                username: accountSid,
+                password: authToken
+            }
+        }).then(response => {
+            return response.data.events
+        })
+    } catch (e) {
+        console.error(e)
+        return []
+    }
 }
 
 function getCallDataForDb (call) {
-  const {
-    startTime,
-    endTime,
-    callStatus: status,
-    from,
-    accountSid,
-    sid
-  } = call
+    const {
+        startTime,
+        endTime,
+        callStatus: status,
+        from,
+        accountSid,
+        sid
+    } = call
 
-  return {
-    callStartTime: startTime,
-    callEndTime: endTime,
-    callStatus: status,
-    from,
-    accountSid,
-    callSid: sid
-  }
+    return {
+        callStartTime: startTime,
+        callEndTime: endTime,
+        callStatus: status,
+        from,
+        accountSid,
+        callSid: sid
+    }
+}
+
+/**
+ * Decide if the event should be included and stored.
+ * @param {} event
+ */
+function shouldIncludeEvent (event) {
+
 }
 
 function getProcessedEventsForTransferToDb (call, events) {
     const processedEvents = []
-    let plateNumber = '';
+    let plateNumber = ''
     if (!Array.isArray(events)) {
-    return [];
+        return []
     }
 
-    const callData = getCallDataForDb(call);
+    const callData = getCallDataForDb(call)
 
     // For each event, construct a document.
     events.forEach((event, index) => {
-    const parsedEvent = getParsedEvent(event)
+        const parsedEvent = getParsedEvent(event)
 
-    if (!parsedEvent) {
-      // Not the event we want - skip.
-      return
-    }
+        if (!parsedEvent) {
+            // Not the event we want - skip.
+            return
+        }
 
-    if (parsedEvent.plateNumber && 
+        if (parsedEvent.plateNumber &&
         parsedEvent.plateNumber.length >= 5
-    ) {
-        plateNumber = parsedEvent.plateNumber;
-    }
+        ) {
+            plateNumber = parsedEvent.plateNumber
+        }
 
-    // TODO: bumper id
-    const eventForDb = {
-        ...callData,
-        ...parsedEvent
-    }
+        // TODO: bumper id
+        const eventForDb = {
+            ...callData,
+            ...parsedEvent
+        }
         processedEvents.push(eventForDb)
     })
     // Not userful without plate number.
     if (!plateNumber) {
-        return [];
+        return []
     }
 
     const output = processedEvents.map((processedEvent, index) => {
         // unique identifier for each document in firestore
         const doc = callData.callSid + '_' + index
         return {
-          docName: doc,
-          ...callData,
-          ...processedEvent,
-          plateNumber,
+            docName: doc,
+            ...callData,
+            ...processedEvent,
+            plateNumber
         }
     })
-  return output;
+    return output
 }
 
 function getParsedEvent (event) {
-  const requestParams = event?.request?.parameters
-  if (!requestParams) {
-    return
-  }
-
-  const {
-    speech_result
-  } = requestParams
-
-  if (!speech_result) {
-    return
-  }
-
-  const parsedEvent = {
-    speechResult: speech_result
-  }
-  const responseBody = event?.response?.response_body
-  if (responseBody) {
-    parsedEvent.machineResponse = responseBody
-    if (responseBody.indexOf(PLATE_NUM_INDICATOR) !== -1) {
-      parsedEvent.plateNumber = speech_result
+    const requestParams = event?.request?.parameters
+    if (!requestParams) {
+        return
     }
-  }
-  return parsedEvent
+
+    const {
+        speech_result
+    } = requestParams
+
+    if (!speech_result) {
+        return
+    }
+
+    const parsedEvent = {
+        speechResult: speech_result
+    }
+    const responseBody = event?.response?.response_body
+    if (responseBody) {
+        parsedEvent.machineResponse = responseBody
+        if (responseBody.indexOf(PLATE_NUM_INDICATOR) !== -1) {
+            parsedEvent.plateNumber = speech_result
+        }
+    }
+    return parsedEvent
 }
 
 function parseDataForTransferToDb () {
@@ -231,5 +239,5 @@ function writeDataToDb () {
 }
 
 module.exports = {
-    getDataFromTwilio,
+    getDataFromTwilio
 }
