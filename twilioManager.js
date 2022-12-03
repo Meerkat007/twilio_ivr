@@ -60,7 +60,7 @@ async function getDataFromTwilio (startDateTime, endDateTime) {
                 ]
             }
         } catch (e) {
-            console.error(e)
+            console.error('getEventsFromSingleCall failed', e)
         }
     }
     return finalData
