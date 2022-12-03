@@ -19,25 +19,43 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getFirestore();
+database.settings({
+    ignoreUndefinedProperties: true
+})
 
-function batchSendToFireStore(db, twilioData) {
+async function batchSendToFireStore(db, twilioData) {
     if (!Array.isArray(twilioData) ||
         twilioData.length === 0
     ) {
         console.log('No data to send');
     }
 
-    // 
-    // const batchWritter = db.batch();
-    // const twilioEventsRef = getTwilioEventsRef(db);
+    const batchWritter = db.batch();
+    const twilioEventsCollection = getTwilioEventsCollection(db);
+    let count = 0;
+    const BATCH_WRITE_LIMIT = 500;
 
-    twilioData.forEach(data => {
-        console.log('aaa', data.docName, data);
-    })
+    for (data of twilioData) {
+        batchWritter.set(
+            twilioEventsCollection.doc(data.docName),
+            {
+                ...data,
+            }
+        )
+        count++;
+        if (count === BATCH_WRITE_LIMIT) {
+            await batchWritter.commit();
+            count = 0;
+        }
+    }
 
+    if (count > 0) {
+        await batchWritter.commit();
+        count = 0;
+    }
 }
 
-function getTwilioEventsRef(db) {
+function getTwilioEventsCollection(db) {
     return db.collection('twilioEvents');
 }
 

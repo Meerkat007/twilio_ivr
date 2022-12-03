@@ -29,7 +29,7 @@ async function run () {
             readEndDateTime
         );
         console.log('!!!twilio data')
-        batchSendToFireStore('', twilioData)
+        await batchSendToFireStore(database, twilioData)
     } catch (e) {
         console.error('failed with', e)
     }

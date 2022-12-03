@@ -216,14 +216,6 @@ function getParsedEvent (event) {
     return parsedEvent
 }
 
-function parseDataForTransferToDb () {
-
-}
-
-function writeDataToDb () {
-
-}
-
 module.exports = {
     getDataFromTwilio
 }
