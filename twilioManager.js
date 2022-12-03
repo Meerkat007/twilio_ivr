@@ -183,7 +183,7 @@ function getProcessedEventsForTransferToDb (call, events) {
             docName: doc,
             ...callData,
             ...processedEvent,
-            plateNumber
+            plateNumber: getSanitizedPlateNumber(plateNumber)
         }
     })
     return output
@@ -214,6 +214,10 @@ function getParsedEvent (event) {
         }
     }
     return parsedEvent
+}
+
+function getSanitizedPlateNumber(unsanitizedNum) {
+    return unsanitizedNum.replace(/[^0-9a-z]/gi, '')
 }
 
 module.exports = {
