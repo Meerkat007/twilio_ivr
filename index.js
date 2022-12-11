@@ -28,7 +28,6 @@ async function run () {
             readStartDateTime,
             readEndDateTime
         );
-        console.log('!!!twilio data')
         await batchSendToFireStore(database, twilioData)
         await setLastReadEpochMillis(database, readEndEpochMillis);
     } catch (e) {

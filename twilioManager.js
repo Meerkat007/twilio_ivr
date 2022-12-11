@@ -5,6 +5,7 @@ const accountSid = 'ACfdc7ae0ddb1e08f83709a104362bc3f4'
 const authToken = '455f4398b159d415cfda17e83624de9d'
 const client = require('twilio')(accountSid, authToken)
 const axios = require('axios')
+const timeUtils = require('./timeUtils')
 const API_HOST = 'https://api.twilio.com'
 
 const PLATE_NUM_INDICATOR = 'Thank you for providing plate number'
@@ -122,9 +123,16 @@ function getCallDataForDb (call) {
         sid
     } = call
 
+    const callStartTimeEpochMillis = timeUtils
+        .getEpochMillisFromTwilioEventDateTime(startTime)
+    const callEndTimeEpochMillis = timeUtils
+        .getEpochMillisFromTwilioEventDateTime(endTime);
+    
     return {
         callStartTime: startTime,
+        callStartTimeEpochMillis,
         callEndTime: endTime,
+        callEndTimeEpochMillis,
         callStatus: status,
         from,
         accountSid,

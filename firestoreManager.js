@@ -40,7 +40,7 @@ async function batchSendToFireStore(db, twilioData) {
             twilioEventsCollection.doc(data.docName),
             {
                 ...data,
-            }
+            },
         )
         count++;
         if (count === BATCH_WRITE_LIMIT) {
@@ -80,9 +80,24 @@ async function setLastReadEpochMillis(db, value) {
     return value;
 }
 
+async function getFeedbackForPlate(db, plateNumber, startDateTimestamp, endDateTimestamp) {
+    const docSnap = await getTwilioEventsCollection(db)
+        .where('plateNumber', '=', plateNumber)
+        .where('callEndTime', '>=', startDateTimestamp)
+        .where('callEndTime', '<=', endDateTimestamp)
+    
+    if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+    } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+    }
+}
+
 module.exports = {
     database,
     batchSendToFireStore,
     getLastReadEpochMillis,
-    setLastReadEpochMillis
+    setLastReadEpochMillis,
+    getFeedbackForPlate,
 }
