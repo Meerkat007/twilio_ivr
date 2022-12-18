@@ -80,14 +80,18 @@ async function setLastReadEpochMillis(db, value) {
     return value;
 }
 
-async function getFeedbackForPlate(db, plateNumber, startDateTimestamp, endDateTimestamp) {
-    const docSnap = await getTwilioEventsCollection(db)
+async function getFeedbackForPlate(db, plateNumber, startEpochMillis, endEpochMillis) {
+    const docs = await getTwilioEventsCollection(db)
         .where('plateNumber', '=', plateNumber)
-        .where('callEndTime', '>=', startDateTimestamp)
-        .where('callEndTime', '<=', endDateTimestamp)
+        .where('callEndTimeEpochMillis', '>=', startEpochMillis)
+        .where('callEndTimeEpochMillis', '<=', endEpochMillis)
+        .orderBy('callEndTimeEpochMillis', 'desc')
+        .get()
     
-    if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
+    if (!docs.empty) {
+        console.log("Document data:", docs.forEach(doc => {
+            console.log(doc.data())
+        }));
     } else {
         // doc.data() will be undefined in this case
         console.log("No such document!");
