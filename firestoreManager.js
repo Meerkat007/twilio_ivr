@@ -89,9 +89,11 @@ async function getFeedbackForPlate(db, plateNumber, startEpochMillis, endEpochMi
         .get()
     
     if (!docs.empty) {
-        console.log("Document data:", docs.forEach(doc => {
-            console.log(doc.data())
-        }));
+        const result = [];
+        docs.forEach(doc => {
+            result.push(doc.data())
+        })
+        return result;
     } else {
         // doc.data() will be undefined in this case
         console.log("No such document!");
