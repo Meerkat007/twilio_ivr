@@ -212,13 +212,17 @@ function getParsedEvent (event) {
     }
 
     const parsedEvent = {
-        speechResult: speech_result
+        speechResult: speech_result,
+        feedback: 'N/A',
     }
     const responseBody = event.response.response_body
     if (responseBody) {
         parsedEvent.machineResponse = responseBody
         if (responseBody.indexOf(PLATE_NUM_INDICATOR) !== -1) {
             parsedEvent.plateNumber = speech_result
+        }
+        if (responseBody.indexOf(FEEDBACK_INDICATOR) !== -1) {
+            parsedEvent.feedback = speech_result
         }
     }
     return parsedEvent
