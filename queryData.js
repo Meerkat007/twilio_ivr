@@ -14,7 +14,10 @@ const end = moment(endDateStr, 'YYYY-MM-DD').valueOf();
 function getResponse() {
     return {
         statusCode: 200,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+            'Content-Type': 'application/json',
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+        },
         body: JSON.stringify(getResponseBody())
     }
 }
@@ -24,6 +27,53 @@ function getResponseBody(data, error) {
         data: data,
         error: error
     }
+}
+
+const excludeKeywords = [
+    'n/a',
+    'no',
+    'yes'
+]
+
+function shouldIncludeItem(item) {
+    const check1 = item &&
+        item.feedback &&
+        item.feedback.trim();
+    const feedbackLowerCase = item.feedback.toLowerCase();
+    
+    const check2 = excludeKeywords.every(word => {
+        return feedbackLowerCase !== word
+    })
+    return check1 && check2;
+}
+
+function getFieldsToIncludeFromItem(item) {
+    return {
+        plateNumber: item.plateNumber || '',
+        feedback: item.feedback || '',
+        callEndTimeEpochMillis: item.callEndTimeEpochMillis || 0
+    }
+}
+
+/**
+ * data should contain the following field in each item
+ * plateNumber
+ * speechResult
+ * callEndTimeEpochMillis
+ * feedback
+ * @param {*} data 
+ */
+function getCleanedDataForTransfer(data) {
+    if (!Array.isArray(data)) {
+        return [];
+    }
+    const result = [];
+    data.forEach(eachItem => {
+        if (shouldIncludeItem(eachItem)) {
+            result.push(getFieldsToIncludeFromItem(eachItem))
+        }
+    })
+    return result;
 }
 
 async function awsApiGatewayHander(event) {
@@ -48,7 +98,8 @@ async function awsApiGatewayHander(event) {
             Number(event.queryStringParameters.startEpochMillis), 
             Number(event.queryStringParameters.endEpochMillis)
         );
-        response.body = JSON.stringify(getResponseBody(result));
+        const data = getCleanedDataForTransfer(result);
+        response.body = JSON.stringify(getResponseBody(data));
     } catch (e) {
         console.error(
             'Failed to get result for event', 
@@ -62,6 +113,6 @@ async function awsApiGatewayHander(event) {
 }
 
 // getFeedbackForPlate(database, '54321', 1668754899000, 1669791699000)
-// .then(d => console.log(d))
+// .then(d => console.log(getCleanedDataForTransfer(d)))
 
 exports.handler = awsApiGatewayHander;
