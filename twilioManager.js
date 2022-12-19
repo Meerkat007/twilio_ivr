@@ -10,7 +10,7 @@ const API_HOST = 'https://api.twilio.com'
 
 const PLATE_NUM_INDICATOR = 'Thank you for providing plate number'
 const FEEDBACK_INDICATOR = 'do you have more feedback'
-const BUMPER_ID_INDICATOR = ''
+const BUMPER_ID_INDICATOR = 'Thank you for providing bumper id'
 
 // db design
 /*
@@ -229,9 +229,10 @@ function getParsedEvent (event) {
 }
 
 function getSanitizedPlateNumber(unsanitizedNum) {
-    return unsanitizedNum.replace(/[^0-9a-z]/gi, '')
+    return unsanitizedNum.replace(/[^0-9a-z]/gi, '').toUpperCase();
 }
 
 module.exports = {
-    getDataFromTwilio
+    getDataFromTwilio,
+    getSanitizedPlateNumber
 }

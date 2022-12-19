@@ -1,6 +1,7 @@
 const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
 const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
 const {Twilio} = require('twilio');
+const {getSanitizedPlateNumber} = require('./twilioManager');
 
   
 // Initialize Firebase
@@ -81,8 +82,9 @@ async function setLastReadEpochMillis(db, value) {
 }
 
 async function getFeedbackForPlate(db, plateNumber, startEpochMillis, endEpochMillis) {
+    const sanitizedPlateNumber = getSanitizedPlateNumber(plateNumber);
     const docs = await getTwilioEventsCollection(db)
-        .where('plateNumber', '=', plateNumber)
+        .where('plateNumber', '=', sanitizedPlateNumber)
         .where('callEndTimeEpochMillis', '>=', startEpochMillis)
         .where('callEndTimeEpochMillis', '<=', endEpochMillis)
         .orderBy('callEndTimeEpochMillis', 'desc')
